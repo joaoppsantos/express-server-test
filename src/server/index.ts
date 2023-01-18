@@ -7,8 +7,19 @@ const app = express();
 const filePath = '../../data/instagram_influencers.csv';
 const expressStaticPath = app.use(express.static(path.join(__dirname, 'data')));
 
+interface Influencer {
+  Influencer_insta_name: string;
+  instagram_name: string;
+  category_1: string;
+  category_2: string;
+  Followers: string;
+  Audience_country: string;
+  Authentic_engagement: string;
+  Engagement_avg: string;
+}
+
 app.get('/data', (req, res) => {
-  let data: any[] = [];
+  let data: Influencer[] = [];
   fs.createReadStream(filePath)
     .pipe(csv())
     .on('data', (row) => {
@@ -24,7 +35,7 @@ app.get('/data', (req, res) => {
 
 app.get('/data/name/:instagramName', (req, res) => {
   const instagramName = req.params.instagramName;
-  let data: any[] = [];
+  let data: Influencer[] = [];
   fs.createReadStream(filePath)
     .pipe(csv())
     .on('data', (row) => {
@@ -34,18 +45,20 @@ app.get('/data/name/:instagramName', (req, res) => {
       }
     })
     .on('end', () => {
-      if (data) res.json(data);
-      else
+      if (data) {
+        res.json(data);
+      } else {
         res
           .status(404)
           .send(`Data not found for Instagram name: ${instagramName}`);
+      }
     })
     .on('error', (err) => {
       res.status(500).send(`Error reading data file: ${err}`);
     });
 });
 
-let data: any[] = [];
+let data: Influencer[] = [];
 app.get('/data/category/:category', (req, res) => {
   const category = req.params.category;
   if (data.length === 0) {
@@ -58,8 +71,11 @@ app.get('/data/category/:category', (req, res) => {
         const filteredData = data.filter(
           (row) => row.category_1 === category || row.category_2 === category,
         );
-        if (filteredData.length > 0) res.json(filteredData);
-        else res.status(404).send(`Data not found for category: ${category}`);
+        if (filteredData.length > 0) {
+          res.json(filteredData);
+        } else {
+          res.status(404).send(`Data not found for category: ${category}`);
+        }
       })
       .on('error', (err) => {
         res.status(500).send(`Error reading data file: ${err}`);
@@ -68,14 +84,17 @@ app.get('/data/category/:category', (req, res) => {
     const filteredData = data.filter(
       (row) => row.category_1 === category || row.category_2 === category,
     );
-    if (filteredData.length > 0) res.json(filteredData);
-    else res.status(404).send(`Data not found for category: ${category}`);
+    if (filteredData.length > 0) {
+      res.json(filteredData);
+    } else {
+      res.status(404).send(`Data not found for category: ${category}`);
+    }
   }
 });
 
 app.get('/data/country/:country', (req, res) => {
   const country = req.params.country;
-  let data: any[] = [];
+  let data: Influencer[] = [];
   fs.createReadStream(filePath)
     .pipe(csv())
     .on('data', (row) => {
@@ -84,8 +103,11 @@ app.get('/data/country/:country', (req, res) => {
       }
     })
     .on('end', () => {
-      if (data.length > 0) res.json(data);
-      else res.status(404).send(`Data not found for country: ${country}`);
+      if (data.length > 0) {
+        res.json(data);
+      } else {
+        res.status(404).send(`Data not found for country: ${country}`);
+      }
     })
     .on('error', (err) => {
       res.status(500).send(`Error reading data file: ${err}`);
